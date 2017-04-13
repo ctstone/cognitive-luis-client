@@ -2,10 +2,10 @@ import request = require('request');
 
 const API_VERSION = '2.0';
 
-type RequestAPI = request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
+export type RequestAPI = request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
 
 export class LuisTrainingClient {
-  private request: RequestAPI;
+  request: RequestAPI;
 
   constructor(private key: string, private appId = '', private versionId = '', private region = 'westus') {
     const baseUrl = [`https://${region}.api.cognitive.microsoft.com/luis/api/v${API_VERSION}/apps`];
