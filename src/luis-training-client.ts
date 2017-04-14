@@ -1,11 +1,17 @@
 import request = require('request');
+import async = require('async');
 
 const API_VERSION = '2.0';
 
 type RequestAPI = request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
 
+export interface Response {
+  body: any;
+  resp: any;
+}
+export type RequestCallback = (err: Error, resp: any) => void;
+
 export class LuisTrainingClient {
-  request: any;
   private api: RequestAPI;
 
   constructor(private key: string, private appId = '', private versionId = '', private region = 'westus') {
@@ -17,10 +23,29 @@ export class LuisTrainingClient {
         baseUrl.push(versionId);
       }
     }
-    this.request = this.api = request.defaults({
+    this.api = request.defaults({
       baseUrl: baseUrl.join('/') + '/',
       headers: {'Ocp-Apim-Subscription-Key': this.key},
       json: true,
     });
+
+    ['get', 'put', 'post', 'delete'].forEach((method) => this[method] = (uri: string, options: any, callback: RequestCallback) => {
+      options = Object.assign(options || {}, { method});
+      this.request(uri, options, callback);
+    });
+  }
+
+  request(uri: string, options: any, callback: RequestCallback) {
+    options = Object.assign(options || {}, { method: 'get'});
+    async.waterfall([
+      (next: request.RequestCallback) => this.api(uri, options, next),
+      (resp: request.RequestResponse, body: any) => {
+        if (resp.statusCode < 200 || resp.statusCode >= 300) {
+          callback(new Error(resp.statusCode.toString()), null);
+        } else {
+          callback(null, {body, resp});
+        }
+      },
+    ], callback);
   }
 }
