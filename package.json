@@ -1,7 +1,7 @@
 {
   "name": "cognitive-luis-client",
   "version": "1.0.4",
-  "description": "",
+  "description": "Client library for LUIS (Language Understanding Intelligent Service)",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
@@ -14,7 +14,11 @@
     "preversion": "git config user.name CI && git config user.email %npm_package_author_name%"
   },
   "keywords": [],
-  "author": "",
+  "author": "chstone@microsoft.com",
+  "repository": {
+    "url": "https://github.com/ctstone/cognitive-luis-client",
+    "type": "git"
+  },
   "license": "MIT",
   "dependencies": {
     "async": "^2.3.0",
