@@ -33,6 +33,7 @@ export class LuisTrainingClient {
   }
 
   listUserApps(options: ListUserApplicationsOptions, callback: LuisManagementCallback): void {
+    options = options || {};
     this.request.get('', {
       qs: { skip: options.skip, take: options.take },
     }, this.onResponse(callback));
