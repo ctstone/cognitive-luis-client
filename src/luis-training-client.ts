@@ -41,6 +41,7 @@ export class LuisTrainingClient {
   }
 
   importApp(application: any, options: ImportAppOptions, callback: LuisManagementCallback): void {
+    options = options || {};
     this.request.post('import', {
       body: application,
       qs: { appName: options.appName },
