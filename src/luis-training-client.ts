@@ -17,7 +17,13 @@ export interface PublishAppOptions {
   isStaging?: boolean;
 }
 
-export type LuisManagementCallback = (err: Error, response: any) => void;
+export interface ManagementResponse {
+  body: any;
+  headers: {[key: string]: string};
+  statusCode: number;
+}
+
+export type LuisManagementCallback = (err: Error, response: ManagementResponse) => void;
 
 export class LuisTrainingClient {
 
@@ -63,7 +69,11 @@ export class LuisTrainingClient {
 
   private onResponse(callback: LuisManagementCallback): ResponseCallback {
     return (err: Error, response: Response) => {
-      callback(err, response ? response.body : null);
+      callback(err, response ? {
+        body: response.body,
+        headers: response.headers,
+        statusCode: response.statusCode,
+       } : null);
     };
   }
 }
