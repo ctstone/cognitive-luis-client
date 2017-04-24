@@ -57,7 +57,6 @@ export class LuisTrainingClient {
   assignAppKey(appId: string, versionId: string, key: string, callback: LuisManagementCallback): void {
     this.request.put(`${appId}/versions/${versionId}/assignedkey`, {
       body: key,
-      json: false,
     }, this.onResponse(callback));
   }
 
