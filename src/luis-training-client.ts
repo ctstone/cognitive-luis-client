@@ -1,51 +1,67 @@
-import request = require('request');
 import async = require('async');
+import { Request, Response, ResponseCallback } from './request';
 
 const API_VERSION = '2.0';
 
-type RequestAPI = request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
-
-export interface Response {
-  body: any;
-  resp: any;
+export interface ListUserApplicationsOptions {
+  skip?: number;
+  take?: number;
 }
-export type RequestCallback = (err: Error, resp: any) => void;
+
+export interface ImportAppOptions {
+  appName?: string;
+}
+
+export interface PublishAppOptions {
+  versionId: string;
+  isStaging?: boolean;
+}
+
+export type LuisManagementCallback = (err: Error, response: any) => void;
 
 export class LuisTrainingClient {
-  private api: RequestAPI;
 
-  constructor(private key: string, private appId = '', private versionId = '', private region = 'westus') {
+  private request: Request;
+
+  constructor(private key: string, private region = 'westus') {
     const baseUrl = [`https://${region}.api.cognitive.microsoft.com/luis/api/v${API_VERSION}/apps`];
-    if (appId) {
-      baseUrl.push(appId);
-      if (versionId) {
-        baseUrl.push('versions');
-        baseUrl.push(versionId);
-      }
-    }
-    this.api = request.defaults({
-      baseUrl: baseUrl.join('/') + '/',
-      headers: {'Ocp-Apim-Subscription-Key': this.key},
+    this.request = new Request({
+      baseUrl: `https://${region}.api.cognitive.microsoft.com/luis/api/v${API_VERSION}/apps`,
+      headers: { 'Ocp-Apim-Subscription-Key': this.key },
       json: true,
-    });
-
-    ['get', 'put', 'post', 'delete'].forEach((method) => this[method] = (uri: string, options: any, callback: RequestCallback) => {
-      options = Object.assign(options || {}, { method});
-      this.request(uri, options, callback);
     });
   }
 
-  request(uri: string, options: any, callback: RequestCallback) {
-    options = Object.assign(options || {}, { method: 'get'});
-    async.waterfall([
-      (next: request.RequestCallback) => this.api(uri, options, next),
-      (resp: request.RequestResponse, body: any) => {
-        if (resp.statusCode < 200 || resp.statusCode >= 300) {
-          callback(new Error(resp.statusCode.toString()), null);
-        } else {
-          callback(null, {body, resp});
-        }
-      },
-    ], callback);
+  listUserApps(options: ListUserApplicationsOptions, callback: LuisManagementCallback): void {
+    this.request.get('', {
+      qs: { skip: options.skip, take: options.take },
+    }, this.onResponse(callback));
+    return null;
+  }
+
+  importApp(application: any, options: ImportAppOptions, callback: LuisManagementCallback): void {
+    this.request.post('import', {
+      body: application,
+      qs: { appName: options.appName },
+    }, this.onResponse(callback));
+  }
+
+  assignAppKey(appId: string, versionId: string, key: string, callback: LuisManagementCallback): void {
+    this.request.put(`${appId}/versions/${versionId}/assignedkey`, {
+      body: key,
+      json: false,
+    }, this.onResponse(callback));
+  }
+
+  publishApp(appId: string, options: PublishAppOptions, callback: LuisManagementCallback): void {
+    this.request.post(`${appId}/publish`, {
+      body: options,
+    }, this.onResponse(callback));
+  }
+
+  private onResponse(callback: LuisManagementCallback): ResponseCallback {
+    return (err: Error, response: Response) => {
+      callback(err, response ? response.body : null);
+    };
   }
 }
