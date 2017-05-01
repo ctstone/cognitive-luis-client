@@ -22,13 +22,13 @@
   "license": "MIT",
   "dependencies": {
     "async": "^2.3.0",
+    "nock": "^9.0.13",
     "request": "^2.81.0"
   },
   "devDependencies": {
     "@types/async": "^2.0.40",
     "@types/nock": "^8.2.1",
     "@types/request": "0.0.42",
-    "nock": "^9.0.13",
     "typescript": "^2.2.2"
   }
 }
