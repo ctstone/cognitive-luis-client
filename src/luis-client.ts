@@ -32,11 +32,19 @@ export class LuisClient {
   private request: RequestAPI;
 
   constructor(private appId: string, private key: string, private region = 'westus') {
-    this.request = request.defaults({
-      baseUrl: `https://${region}.api.cognitive.microsoft.com/luis/v${API_VERSION}/apps/${appId}`,
-      json: true,
-      qs: { 'subscription-key': key },
-    });
+    this.setDefaults(region, appId, key);
+  }
+
+  setAppId(appId: string): void {
+    this.setDefaults(this.region, appId, this.key);
+  }
+
+  setKey(key: string): void {
+    this.setDefaults(this.region, this.appId, key);
+  }
+
+  setRegion(region: string): void {
+    this.setDefaults(region, this.appId, this.key);
   }
 
   recognize(text: string, callback: LuisCallback): void {
@@ -50,5 +58,13 @@ export class LuisClient {
         }
       },
     ], callback);
+  }
+
+  private setDefaults(region: string, appId: string, key: string): void {
+    this.request = request.defaults({
+      baseUrl: `https://${region}.api.cognitive.microsoft.com/luis/v${API_VERSION}/apps/${appId}`,
+      json: true,
+      qs: { 'subscription-key': key },
+    });
   }
 }
