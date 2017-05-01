@@ -54,6 +54,12 @@ export class LuisTrainingClient {
     }, this.onResponse(callback));
   }
 
+  addSubscriptionKey(keyName: string, key: string, callback: LuisManagementCallback): void {
+    this.request.put('subscriptions', {
+      body: {subscriptionName: keyName, subscriptionKey: key},
+    }, this.onResponse(callback));
+  }
+
   assignAppKey(appId: string, versionId: string, key: string, callback: LuisManagementCallback): void {
     this.request.put(`${appId}/versions/${versionId}/assignedkey`, {
       body: key,
