@@ -59,7 +59,7 @@ export class LuisTrainingClient {
   }
 
   addSubscriptionKey(keyName: string, key: string, callback: LuisManagementCallback): void {
-    this.request.put('subscriptions', {
+    this.request.post('subscriptions', {
       body: {subscriptionName: keyName, subscriptionKey: key},
     }, this.onResponse(callback));
   }
