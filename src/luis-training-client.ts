@@ -43,7 +43,6 @@ export class LuisTrainingClient {
     this.request.get('', {
       qs: { skip: options.skip, take: options.take },
     }, this.onResponse(callback));
-    return null;
   }
 
   importApp(application: any, options: ImportAppOptions, callback: LuisManagementCallback): void {
@@ -51,6 +50,11 @@ export class LuisTrainingClient {
     this.request.post('import', {
       body: application,
       qs: { appName: options.appName },
+    }, this.onResponse(callback));
+  }
+
+  listSubscriptionKeys(callback: LuisManagementCallback): void {
+    this.request.get('subscriptions', {
     }, this.onResponse(callback));
   }
 
