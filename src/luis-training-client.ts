@@ -3,7 +3,7 @@ import { Request, Response, ResponseCallback } from './request';
 
 const API_VERSION = '2.0';
 
-export interface ListUserApplicationsOptions {
+export interface ListOptions {
   skip?: number;
   take?: number;
 }
@@ -23,6 +23,15 @@ export interface ManagementResponse {
   statusCode: number;
 }
 
+export interface CreateAppOptions {
+  name: string;
+  description?: string;
+  culture: string;
+  usageScenario?: string;
+  domain?: string;
+  initialVersionId?: string;
+}
+
 export type LuisManagementCallback = (err: Error, response: ManagementResponse) => void;
 
 export class LuisTrainingClient {
@@ -38,7 +47,7 @@ export class LuisTrainingClient {
     });
   }
 
-  listUserApps(options: ListUserApplicationsOptions, callback: LuisManagementCallback): void {
+  listUserApps(options: ListOptions, callback: LuisManagementCallback): void {
     options = options || {};
     this.request.get('', {
       qs: { skip: options.skip, take: options.take },
@@ -77,12 +86,31 @@ export class LuisTrainingClient {
   }
 
   trainApp(appId: string, versionId: string, callback: LuisManagementCallback): void {
-    this.request.put(`${appId}/versions/${versionId}/train`, {
+    this.request.post(`${appId}/versions/${versionId}/train`, {
     }, this.onResponse(callback));
   }
 
   trainingStatus(appId: string, versionId: string, callback: LuisManagementCallback): void {
     this.request.get(`${appId}/versions/${versionId}/train`, {
+    }, this.onResponse(callback));
+  }
+
+  addApp(options: CreateAppOptions, callback: LuisManagementCallback): void {
+    this.request.post('', {
+      body: options,
+    }, this.onResponse(callback));
+  }
+
+  importVersion(appId: string, app: any, callback: LuisManagementCallback): void {
+    this.request.post(`${appId}/versions/import`, {
+      body: app,
+    }, this.onResponse(callback));
+  }
+
+  listVersions(appId: string, options: ListOptions, callback: LuisManagementCallback): void {
+    options = options || {};
+    this.request.get(`${appId}/versions`, {
+      qs: { skip: options.skip, take: options.take },
     }, this.onResponse(callback));
   }
 
