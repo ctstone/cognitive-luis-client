@@ -76,6 +76,11 @@ export class LuisTrainingClient {
     }, this.onResponse(callback));
   }
 
+  trainApp(appId: string, versionId: string, callback: LuisManagementCallback): void {
+    this.request.put(`${appId}/versions/${versionId}/train`, {
+    }, this.onResponse(callback));
+  }
+
   private onResponse(callback: LuisManagementCallback): ResponseCallback {
     return (err: Error, response: Response) => {
       callback(err, response ? {
