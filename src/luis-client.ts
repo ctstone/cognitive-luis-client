@@ -1,5 +1,6 @@
 import request = require('request');
 import async = require('async');
+import extend = require('extend');
 
 export const API_VERSION = '2.0';
 
@@ -26,25 +27,31 @@ export interface LuisResult {
   entities: Entity[];
 }
 
+export interface LuisClientOptions {
+  staging?: boolean;
+  verbose?: boolean;
+  timezoneOffset?: number;
+}
+
 export type LuisCallback = (err: Error, result: LuisResult) => void;
 
 export class LuisClient {
   private request: RequestAPI;
 
-  constructor(private appId: string, private key: string, private region = 'westus') {
-    this.setDefaults(region, appId, key);
+  constructor(private appId: string, private key: string, private region = 'westus', private options: LuisClientOptions = {}) {
+    this.setDefaults(region, appId, key, options);
   }
 
   setAppId(appId: string): void {
-    this.setDefaults(this.region, appId, this.key);
+    this.setDefaults(this.region, appId, this.key, this.options);
   }
 
   setKey(key: string): void {
-    this.setDefaults(this.region, this.appId, key);
+    this.setDefaults(this.region, this.appId, key, this.options);
   }
 
   setRegion(region: string): void {
-    this.setDefaults(region, this.appId, this.key);
+    this.setDefaults(region, this.appId, this.key, this.options);
   }
 
   recognize(text: string, callback: LuisCallback): void {
@@ -60,11 +67,11 @@ export class LuisClient {
     ], callback);
   }
 
-  private setDefaults(region: string, appId: string, key: string): void {
+  private setDefaults(region: string, appId: string, key: string, options: LuisClientOptions): void {
     this.request = request.defaults({
       baseUrl: `https://${region}.api.cognitive.microsoft.com/luis/v${API_VERSION}/apps/${appId}`,
       json: true,
-      qs: { 'subscription-key': key },
+      qs: extend(options, { 'subscription-key': key }),
     });
   }
 }
