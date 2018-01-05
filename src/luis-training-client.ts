@@ -19,7 +19,7 @@ export interface PublishAppOptions {
 
 export interface ManagementResponse {
   body: any;
-  headers: {[key: string]: string};
+  headers: {[key: string]: string | string[]};
   statusCode: number;
 }
 
