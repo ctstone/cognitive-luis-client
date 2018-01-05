@@ -1,6 +1,6 @@
 {
   "name": "cognitive-luis-client",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Client library for LUIS (Language Understanding Intelligent Service)",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
