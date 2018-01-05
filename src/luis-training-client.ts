@@ -115,7 +115,7 @@ export class LuisTrainingClient {
   }
 
   listAppSubscriptions(appId: string, callback: LuisManagementCallback): void {
-    this.request.get(`${appId}/subscriptions`, null, this.onResponse(callback));
+    this.request.get(`../../../webapi/v${API_VERSION}/apps/${appId}/subscriptions`, null, this.onResponse(callback));
   }
 
   listAppEndpoints(appId: string, callback: LuisManagementCallback): void {
