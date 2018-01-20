@@ -122,6 +122,55 @@ export class LuisTrainingClient {
     this.request.get(`${appId}/endpoints`, null, this.onResponse(callback));
   }
 
+  listIntents(appId: string, versionId: string, options: ListOptions, callback: LuisManagementCallback): void {
+    options = options || {};
+    this.request.get(`${appId}/versions/${versionId}/intents`, {
+      qs: { skip: options.skip, take: options.take },
+    }, this.onResponse(callback));
+  }
+
+  listEntities(appId: string, versionId: string, options: ListOptions, callback: LuisManagementCallback): void {
+    options = options || {};
+    this.request.get(`${appId}/versions/${versionId}/entities`, {
+      qs: { skip: options.skip, take: options.take },
+    }, this.onResponse(callback));
+  }
+
+  listClosedLists(appId: string, versionId: string, options: ListOptions, callback: LuisManagementCallback): void {
+    options = options || {};
+    this.request.get(`${appId}/versions/${versionId}/closedlists`, {
+      qs: { skip: options.skip, take: options.take },
+    }, this.onResponse(callback));
+  }
+
+  listCompositeEntities(appId: string, versionId: string, options: ListOptions, callback: LuisManagementCallback): void {
+    options = options || {};
+    this.request.get(`${appId}/versions/${versionId}/compositeentities`, {
+      qs: { skip: options.skip, take: options.take },
+    }, this.onResponse(callback));
+  }
+
+  listHierarchicalEntities(appId: string, versionId: string, options: ListOptions, callback: LuisManagementCallback): void {
+    options = options || {};
+    this.request.get(`${appId}/versions/${versionId}/hierarchicalentities`, {
+      qs: { skip: options.skip, take: options.take },
+    }, this.onResponse(callback));
+  }
+
+  listPrebuiltEntities(appId: string, versionId: string, options: ListOptions, callback: LuisManagementCallback): void {
+    options = options || {};
+    this.request.get(`${appId}/versions/${versionId}/prebuilts`, {
+      qs: { skip: options.skip, take: options.take },
+    }, this.onResponse(callback));
+  }
+
+  listModels(appId: string, versionId: string, options: ListOptions, callback: LuisManagementCallback): void {
+    options = options || {};
+    this.request.get(`${appId}/versions/${versionId}/models`, {
+      qs: { skip: options.skip, take: options.take },
+    }, this.onResponse(callback));
+  }
+
   private onResponse(callback: LuisManagementCallback): ResponseCallback {
     return (err: Error, response: Response) => {
       callback(err, response ? {
