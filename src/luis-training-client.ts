@@ -3,6 +3,18 @@ import { Request, Response, ResponseCallback } from './request';
 
 const API_VERSION = '2.0';
 
+export enum LuisError {
+  appExists = 'An application with the same name already exists',
+  keyExists = 'A subscription with the same key already exists for the user',
+}
+
+export enum LuisTrainingStatus {
+  success = 'Success',
+  upToDate = 'UpToDate',
+  inProgress = 'InProgress',
+  fail = 'Fail',
+}
+
 export interface ListOptions {
   skip?: number;
   take?: number;
@@ -179,6 +191,52 @@ export class LuisTrainingClient {
     this.request.put(`${appId}/settings`, {
       body: settings,
     }, this.onResponse(callback));
+  }
+
+  /**
+   * Periodically poll for training completion
+   * @param appId appId
+   * @param appVersion appVersion
+   * @param callback callback
+   */
+  waitForTraining(appId: string, appVersion: string, callback: async.AsyncBooleanResultCallback<Error>): void {
+    async.doDuring(
+      (next: LuisManagementCallback) => this.trainingStatus(appId, appVersion, next),
+      (...args: any[]) => { // typedef for async is not correct
+        const resp: ManagementResponse = args[0];
+        const next: async.AsyncBooleanResultCallback<Error> = args[1];
+        const failed = resp.body.some((x: any) => x.details.status === LuisTrainingStatus.fail);
+        const pending = resp.body.some((x: any) => x.details.status === LuisTrainingStatus.inProgress);
+        if (failed) {
+          setImmediate(next, new Error(resp.body));
+        } else if (pending) {
+          setTimeout(() => next(null, true), 2500);
+        } else {
+          setImmediate(next, null, false);
+        }
+      },
+      callback);
+  }
+
+  /**
+   * Try to import the app. If it already exists, return the existing appId
+   * @param app app content
+   * @param callback callback when done
+   */
+  tryImportApp(app: any, callback: LuisManagementCallback): void {
+    this.importApp(app, null, (err, resp) => {
+      if (!err) {
+        return callback(err, resp);
+      } else if (!resp.body || !resp.body.error || resp.body.error.message !== LuisError.appExists) {
+        return callback(new Error(resp.body), null);
+      }
+
+      async.waterfall([
+        (next: LuisManagementCallback) => this.listUserApps(null, next),
+        (resp: ManagementResponse, next: (err: Error, app: any) => void) => next(null, resp.body.find((x: any) => x.name === app.name)),
+        (app: any, next: LuisManagementCallback) => app.id ? next(null, { body: app.id, headers: null, statusCode: 200 }) : next(new Error('Cannot find LUIS app'), null),
+      ], callback);
+    });
   }
 
   private onResponse(callback: LuisManagementCallback): ResponseCallback {
