@@ -32,6 +32,10 @@ export interface CreateAppOptions {
   initialVersionId?: string;
 }
 
+export interface AppSettings {
+  public: boolean;
+}
+
 export type LuisManagementCallback = (err: Error, response: ManagementResponse) => void;
 
 export class LuisTrainingClient {
@@ -168,6 +172,12 @@ export class LuisTrainingClient {
     options = options || {};
     this.request.get(`${appId}/versions/${versionId}/models`, {
       qs: { skip: options.skip, take: options.take },
+    }, this.onResponse(callback));
+  }
+
+  updateSettings(appId: string, settings: AppSettings, callback: LuisManagementCallback): void {
+    this.request.put(`${appId}/settings`, {
+      body: settings,
     }, this.onResponse(callback));
   }
 
