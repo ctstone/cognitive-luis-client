@@ -27,6 +27,7 @@ export interface ImportAppOptions {
 export interface PublishAppOptions {
   versionId: string;
   isStaging?: boolean;
+  region?: string;
 }
 
 export interface ManagementResponse {
@@ -96,6 +97,7 @@ export class LuisTrainingClient {
   }
 
   publishApp(appId: string, options: PublishAppOptions, callback: LuisManagementCallback): void {
+    options.region = options.region || this.region;
     this.request.post(`${appId}/publish`, {
       body: options,
     }, this.onResponse(callback));
@@ -187,6 +189,9 @@ export class LuisTrainingClient {
     }, this.onResponse(callback));
   }
 
+  // importAndPublish(app: any, public: boolean, callback: LuisManagementCallback): void {
+  // }
+
   updateSettings(appId: string, settings: AppSettings, callback: LuisManagementCallback): void {
     this.request.put(`${appId}/settings`, {
       body: settings,
@@ -230,6 +235,8 @@ export class LuisTrainingClient {
       } else if (!resp.body || !resp.body.error || resp.body.error.message !== LuisError.appExists) {
         return callback(new Error(resp.body), null);
       }
+
+      // TODO check version match on imported and existing apps
 
       async.waterfall([
         (next: LuisManagementCallback) => this.listUserApps(null, next),
