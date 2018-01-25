@@ -230,12 +230,8 @@ export class LuisTrainingClient {
    */
   tryImportApp(app: any, callback: LuisManagementCallback): void {
     this.importApp(app, null, (err, resp) => {
-      if (!err) {
+      if (!err || err.message !== LuisError.appExists) {
         return callback(err, resp);
-      } else if (!resp.body || !resp.body.error) {
-        return callback(new Error(resp.body), null);
-      } else if (resp.body.error.message !== LuisError.appExists) {
-        return callback(new Error(resp.body.error.message), null);
       }
 
       // TODO check version match on imported and existing apps

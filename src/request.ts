@@ -1,5 +1,5 @@
-import request = require('request');
 import async = require('async');
+import request = require('request');
 
 export type Response = request.RequestResponse;
 export type ResponseCallback = (err: Error, response: request.RequestResponse) => void;
@@ -35,7 +35,7 @@ export class Request {
       (resp: request.RequestResponse, body: any, next: request.RequestCallback) => {
         if (resp.statusCode < 200 || resp.statusCode >= 300) {
           const message = resp.headers['content-type'].startsWith('application/json')
-            ? JSON.stringify(body)
+            ? this.formatJsonErrorMessage(body)
             : `Request returned HTTP ${resp.statusCode}`;
           setImmediate(next, new Error(message), resp); // TODO retry with backoff
         } else {
@@ -43,5 +43,15 @@ export class Request {
         }
       },
     ], callback);
+  }
+
+  private formatJsonErrorMessage(body: any): string {
+    if (body.message) {
+      return body.message;
+    } else if (body.error && body.error.message) {
+      return body.error.message;
+    } else {
+      return JSON.stringify(body);
+    }
   }
 }
