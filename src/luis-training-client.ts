@@ -3,8 +3,9 @@ import { Request, Response, ResponseCallback } from './request';
 
 const API_VERSION = '2.0';
 
+const RE_APP_EXISTS = /^.+ already exists\.$/;
+
 export enum LuisError {
-  appExists = 'An application with the same name already exists',
   keyExists = 'A subscription with the same key already exists for the user',
 }
 
@@ -230,7 +231,8 @@ export class LuisTrainingClient {
    */
   tryImportApp(app: any, callback: LuisManagementCallback): void {
     this.importApp(app, null, (err, resp) => {
-      if (!err || err.message !== LuisError.appExists) {
+      console.log(`ERROR <${err.message}>`);
+      if (!err || !RE_APP_EXISTS.test(err.message)) {
         return callback(err, resp);
       }
 
