@@ -23,7 +23,7 @@
   "dependencies": {
     "async": "^2.6.0",
     "nock": "^9.1.5",
-    "request": "^2.83.0"
+    "request": "^2.85.0"
   },
   "devDependencies": {
     "@types/async": "^2.0.46",
