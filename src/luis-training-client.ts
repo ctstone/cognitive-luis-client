@@ -5,10 +5,6 @@ const API_VERSION = '2.0';
 
 const RE_APP_EXISTS = /^.+ already exists\.$/;
 
-export enum LuisError {
-  keyExists = 'A subscription with the same key already exists for the user',
-}
-
 export enum LuisTrainingStatus {
   success = 'Success',
   upToDate = 'UpToDate',
@@ -57,7 +53,6 @@ export class LuisTrainingClient {
   private request: Request;
 
   constructor(private key: string, private region = 'westus') {
-    const baseUrl = [`https://${region}.api.cognitive.microsoft.com/luis/api/v${API_VERSION}/apps`];
     this.request = new Request({
       baseUrl: `https://${region}.api.cognitive.microsoft.com/luis/api/v${API_VERSION}/apps`,
       headers: { 'Ocp-Apim-Subscription-Key': this.key },
@@ -77,23 +72,6 @@ export class LuisTrainingClient {
     this.request.post('import', {
       body: application,
       qs: { appName: options.appName },
-    }, this.onResponse(callback));
-  }
-
-  listSubscriptionKeys(callback: LuisManagementCallback): void {
-    this.request.get('../subscriptions', {
-    }, this.onResponse(callback));
-  }
-
-  addSubscriptionKey(keyName: string, key: string, callback: LuisManagementCallback): void {
-    this.request.post('../subscriptions', {
-      body: {subscriptionName: keyName, subscriptionKey: key},
-    }, this.onResponse(callback));
-  }
-
-  assignAppKey(appId: string, versionId: string, key: string, callback: LuisManagementCallback): void {
-    this.request.put(`${appId}/versions/${versionId}/assignedkey`, {
-      body: key,
     }, this.onResponse(callback));
   }
 
@@ -131,10 +109,6 @@ export class LuisTrainingClient {
     this.request.get(`${appId}/versions`, {
       qs: { skip: options.skip, take: options.take },
     }, this.onResponse(callback));
-  }
-
-  listAppSubscriptions(appId: string, callback: LuisManagementCallback): void {
-    this.request.get(`../../../webapi/v${API_VERSION}/apps/${appId}/subscriptions`, null, this.onResponse(callback));
   }
 
   listAppEndpoints(appId: string, callback: LuisManagementCallback): void {
@@ -189,9 +163,6 @@ export class LuisTrainingClient {
       qs: { skip: options.skip, take: options.take },
     }, this.onResponse(callback));
   }
-
-  // importAndPublish(app: any, public: boolean, callback: LuisManagementCallback): void {
-  // }
 
   updateSettings(appId: string, settings: AppSettings, callback: LuisManagementCallback): void {
     this.request.put(`${appId}/settings`, {
